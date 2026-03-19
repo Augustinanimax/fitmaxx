@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outfit Combo Generator</title>
+  <style>
+    :root {
+      --bg: radial-gradient(circle at top left, #4078f2 0%, #1c2a57 45%, #0e1531 100%);
+      --card: rgba(255, 255, 255, 0.9);
+      --primary: #ff8f56;
+      --accent: #6a8bff;
+      --text: #0c1630;
+      --muted: #5d718e;
+      --shadow: 0 16px 40px rgba(10, 20, 52, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Nunito', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: min(100%, 980px);
+      background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(230, 244, 255, 0.78));
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(14px);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      animation: float 7s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #1b3168;
+      font-size: clamp(1.65rem, 3vw, 2.55rem);
+      letter-spacing: 1px;
+      text-shadow: 0 4px 18px rgba(17, 33, 73, 0.24);
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    select,
+    input,
+    button {
+      border-radius: 14px;
+      border: 1px solid rgba(51, 110, 194, 0.25);
+      background: rgba(255, 255, 255, 0.75);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: inset 0 1px 8px rgba(51, 95, 160, 0.08);
+    }
+
+    select:focus,
+    input:focus,
+    button:focus {
+      box-shadow: 0 0 0 4px rgba(106, 139, 255, 0.35);
+      border-color: #6599ff;
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.98);
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: linear-gradient(130deg, #3060de, #6a8bff);
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      box-shadow: 0 8px 20px rgba(24, 62, 133, 0.35);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s linear;
+    }
+
+    button:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 12px 24px rgba(28, 70, 163, 0.42);
+      filter: brightness(1.08);
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.9);
+      color: #1d2f56;
+      border: 1px solid rgba(127, 145, 177, 0.32);
+      box-shadow: 0 6px 16px rgba(29, 52, 84, 0.18);
+    }
+
+    button.secondary {
+      background: #e9edf5;
+      color: #2e3d4b;
+      border: 1px solid #c1cff4;
+    }
+
+    .results {
+      border-radius: 16px;
+      border: 1px solid rgba(106, 139, 255, 0.3);
+      min-height: 100px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(10px);
+      box-shadow: inset 0 0 20px rgba(46, 82, 152, 0.12);
+    }
+
+    .outfit-card {
+      border: 1px solid rgba(47, 107, 222, 0.2);
+      border-radius: 14px;
+      margin: 10px 0;
+      padding: 14px;
+      background: linear-gradient(144deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.86));
+      box-shadow: 0 6px 16px rgba(21, 58, 113, 0.18);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .outfit-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(18, 50, 98, 0.28);
+    }
+
+    .outfit-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .outfit-items {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 4px;
+      color: #475569;
+    }
+
+    .outfit-items li::before {
+      content: "•";
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 560px) {
+      .container {
+        padding: 16px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Outfit Combo Generator</h1>
+    <p>Choose your style preferences and generate versatile outfit combinations instantly.</p>
+
+    <div class="grid" aria-label="options">
+      <label for="quantity">Outfits to generate</label>
+      <input type="number" id="quantity" min="1" value="3" />
+
+      <label for="mood">Theme</label>
+      <select id="mood">
+        <option value="formal">Formal</option>
+        <option value="casual">Casual</option>
+        <option value="streetwear">Streetwear</option>
+        <option value="oldmoney">Old Money</option>
+        <option value="starboy">Starboy</option>
+        <option value="y2k">Y2K</option>
+      </select>
+
+      <label for="gender">Gender</label>
+      <select id="gender">
+        <option value="unisex">Unisex</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="nonbinary">Non-binary</option>
+      </select>
+
+      <label for="temp">Temperature</label>
+      <select id="temp">
+        <option value="any">Any</option>
+        <option value="warm">Warm</option>
+        <option value="cool">Cool</option>
+        <option value="cold">Cold</option>
+      </select>
+
+      <label for="accessories">Accessories</label>
+      <select id="accessories">
+        <option value="include">Include</option>
+        <option value="exclude">Exclude</option>
+      </select>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 10px;">
+      <button id="generateBtn">Generate outfits</button>
+      <button id="clearBtn" class="secondary">Clear results</button>
+    </div>
+
+    <section class="results" id="results" aria-live="polite"></section>
+
+    <div class="footer">Tip: click Generate again for new combinations.</div>
+  </main>
+
+  <script>
+    const data = {
+      tops: {
+        casual: ["white tee", "striped shirt", "denim jacket", "graphic hoodie", "plaid flannel"],
+        formal: ["crisp oxford", "silk blouse", "navy blazer", "tailored vest", "cream blouse"],
+        streetwear: ["oversized hoodie", "logo cropped tee", "puffer vest", "windbreaker", "chain shirt"],
+        oldmoney: ["tweed blazer", "cashmere sweater", "silk tie", "button-down cardigan", "blazer vest"],
+        starboy: ["futuristic bomber", "metallic jacket", "neon sweatshirt", "graphic mesh top", "leather stage jacket"],
+        y2k: ["low-rise baby tee", "denim corset", "sequin tank", "cargo vest", "velour hoodie"],
+      },
+      bottoms: {
+        casual: ["blue jeans", "chino shorts", "denim skirt", "cargo pants", "joggers"],
+        formal: ["tailored trousers", "pencil skirt", "pleated slacks", "wool skirt", "straight-leg suit pants"],
+        streetwear: ["baggy jeans", "track pants", "cargo shorts", "sweatshorts", "workwear trousers"],
+        oldmoney: ["pleated trousers", "tweed skirt", "khaki slacks", "tailored culottes", "gentry chinos"],
+        starboy: ["leather pants", "shiny joggers", "metallic shorts", "mesh pants", "futuristic cargo"],
+        y2k: ["low-rise jeans", "cargo mini skirt", "denim bermuda", "bootcut pants", "visible thong jean"],
+      },
+      shoes: {
+        casual: ["white sneakers", "slip-on loafers", "ankle boots", "espadrilles", "canvas sneakers"],
+        formal: ["oxfords", "heeled pumps", "pointed flats", "derby shoes", "block heels"],
+        streetwear: ["high-top sneakers", "chunky trainers", "platform boots", "street slides", "combat boots"],
+        oldmoney: ["loafers", "monk straps", "patent shoes", "suede brogues", "oxfords"],
+        starboy: ["metallic sneakers", "neon ski boots", "clear soled shoes", "laser platforms", "futuristic boots"],
+        y2k: ["platform sandals", "vans style sneakers", "Jelly heels", "moccasins", "retro runners"],
+      },
+      accessories: ["sunglasses", "watch", "statement necklace", "baseball cap", "belt", "scarf", "tote bag", "beanie"],
+    };
+
+    const genderBoost = {
+      tops: {
+        male: ["solid polo", "denim jacket", "athletic hoodie"],
+        female: ["ruffled blouse", "crop top", "peplum jacket"],
+        nonbinary: ["oversized sweatshirt", "unisex bomber", "longline tee"],
+      },
+      bottoms: {
+        male: ["straight fit jeans", "cargo pants", "chino shorts"],
+        female: ["high-waisted skirt", "wide-leg trousers", "biker shorts"],
+        nonbinary: ["relaxed joggers", "boyfriend jeans", "utility pants"],
+      },
+      shoes: {
+        male: ["high-top sneakers", "loafers", "running trainers"],
+        female: ["platform sandals", "block heels", "ballet flats"],
+        nonbinary: ["chunky sneakers", "canvas slip-ons", "hiker boots"],
+      },
+      accessories: {
+        male: ["baseball cap", "leather belt", "sport watch"],
+        female: ["statement earrings", "chain necklace", "hair scarf"],
+        nonbinary: ["beanie", "crossbody bag", "minimalist watch"],
+      },
+    };
+
+    const results = document.getElementById("results");
+    const quantity = document.getElementById("quantity");
+    const mood = document.getElementById("mood");
+    const gender = document.getElementById("gender");
+    const temp = document.getElementById("temp");
+    const accessories = document.getElementById("accessories");
+    const generateBtn = document.getElementById("generateBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    const tempModifications = {
+      warm: {
+        addTo: {
+          tops: ["tank top", "short sleeve tee"],
+          bottoms: ["linen shorts", "shorts", "mini skirt"],
+          shoes: ["sandals", "espadrilles"],
+        },
+        removeFrom: ["leather jacket", "wool skirt", "boots", "sweatpants", "blazer"],
+      },
+      cool: {
+        addTo: {
+          tops: ["light sweater", "denim jacket"],
+          bottoms: ["jeans", "chinos"],
+          shoes: ["sneakers", "sneaker boots"],
+        },
+        removeFrom: ["tank top", "sandals", "heaters"],
+      },
+      cold: {
+        addTo: {
+          tops: ["wool coat", "puffer jacket", "turtleneck"],
+          bottoms: ["corduroy pants", "thermal leggings", "wool trousers"],
+          shoes: ["winter boots", "chelsea boots"],
+        },
+        removeFrom: ["shorts", "sandals", "linen shirt", "crochet top"],
+      },
+    };
+
+    function chooseRandom(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function getPoolByMood(category, selectedMood) {
+      const moodKey = selectedMood in data[category] ? selectedMood : "casual";
+      const pool = [...(data[category][moodKey] ?? []), ...(data[category].random ?? [])];
+      return pool.length ? pool : [...(data[category][moodKey] ?? [])];
+    }
+
+    function applyGenderFilter(itemList, selectedGender, category) {
+      if (selectedGender === "unisex") return itemList;
+      const boostItems = genderBoost?.[category]?.[selectedGender] ?? [];
+      const merged = [...new Set([...itemList, ...boostItems])];
+      return merged;
+    }
+
+    function applyTemperatureFilter(itemList, selectedTemp, category) {
+      if (selectedTemp === "any") return itemList;
+
+      const modification = tempModifications[selectedTemp];
+      if (!modification) return itemList;
+
+      let filtered = itemList.filter(item => !modification.removeFrom.some(x => item.toLowerCase().includes(x)));
+
+      const categoryAdd = modification.addTo?.[category] || [];
+      filtered = [...new Set(filtered.concat(categoryAdd))];
+
+      return filtered.length ? filtered : itemList;
+    }
+
+    function generateSingleOutfit(options) {
+      const topOptions = applyGenderFilter(applyTemperatureFilter(getPoolByMood("tops", options.mood), options.temp, "tops"), options.gender, "tops");
+      const bottomOptions = applyGenderFilter(applyTemperatureFilter(getPoolByMood("bottoms", options.mood), options.temp, "bottoms"), options.gender, "bottoms");
+      const shoeOptions = applyGenderFilter(applyTemperatureFilter(getPoolByMood("shoes", options.mood), options.temp, "shoes"), options.gender, "shoes");
+
+      const outfit = {
+        top: chooseRandom(topOptions),
+        bottom: chooseRandom(bottomOptions),
+        shoes: chooseRandom(shoeOptions),
+      };
+
+      if (options.includeAccessories) {
+        const accessoryPool = applyGenderFilter(data.accessories, options.gender, "accessories");
+        outfit.accessory = chooseRandom(accessoryPool);
+      }
+
+      return outfit;
+    }
+
+    function generateOutfits(count, options) {
+      const list = [];
+      for (let i = 0; i < count; i++) {
+        list.push(generateSingleOutfit(options));
+      }
+      return list;
+    }
+
+    function renderOutfits(outfits) {
+      if (!outfits.length) {
+        results.innerHTML = "<em>No outfits generated yet.</em>";
+        return;
+      }
+
+      results.innerHTML = outfits
+        .map((outfit, index) => {
+          return `
+            <article class="outfit-card">
+              <h3>Outfit ${index + 1}</h3>
+              <ul class="outfit-items">
+                <li>Top: ${outfit.top}</li>
+                <li>Bottom: ${outfit.bottom}</li>
+                <li>Shoes: ${outfit.shoes}</li>
+                ${outfit.accessory ? `<li>Accessory: ${outfit.accessory}</li>` : ""}
+              </ul>
+            </article>`;
+        })
+        .join("");
+    }
+
+    function saveToClipboard(text) {
+      navigator.clipboard.writeText(text).then(
+        () => {
+          const old = generateBtn.textContent;
+          generateBtn.textContent = "Copied!";
+          setTimeout(() => (generateBtn.textContent = old), 1000);
+        },
+        () => {
+          alert("Clipboard copy failed. Please copy manually.");
+        }
+      );
+    }
+
+    generateBtn.addEventListener("click", () => {
+      const count = Math.max(1, Number(quantity.value) || 1);
+      const options = {
+        mood: mood.value,
+        gender: gender.value,
+        temp: temp.value,
+        includeAccessories: accessories.value !== "exclude",
+      };
+
+      const outfits = generateOutfits(count, options);
+      renderOutfits(outfits);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      results.innerHTML = "<em>Results cleared.</em>";
+    });
+
+    results.innerHTML = "<em>Use the controls above to generate outfit combinations.</em>";
+  </script>
+</body>
+</html>
